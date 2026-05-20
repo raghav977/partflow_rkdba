@@ -5,6 +5,7 @@ import { ProtectedRoute } from './components/ProtectedRoute'
 import './App.css'
 import AdminLayout from './layouts/admin/AdminLayout'
 import LoginPage from './pages/auth/login/Login'
+import CustomerRegister from './pages/auth/CustomerRegister'
 import StaffLayout from './layouts/staff/StaffLayout'
 import StaffDashboard from './pages/staff/StaffDashboard'
 import StaffCustomer from './pages/staff/StaffCustomer'
@@ -35,6 +36,16 @@ import AppointmentsPage from './pages/customer/AppointmentsPage'
 import PartRequestsPage from './pages/customer/PartRequestsPage'
 import ReviewsPage from './pages/customer/ReviewsPage'
 import CustomerVehiclesPage from './pages/customer/CustomerVehiclesPage'
+import PurchaseHistoryPage from './pages/customer/PurchaseHistoryPage'
+import AdminReportsPage from './pages/admin/AdminReportsPage'
+import StaffReportsPage from './pages/staff/StaffReportsPage'
+import AdminPurchaseInvoicesPage from './pages/admin/PurchaseInvoicesPage'
+import NewPurchaseInvoicePage from './pages/admin/NewPurchaseInvoicePage'
+import PurchaseInvoiceDetailPage from './pages/admin/PurchaseInvoiceDetailPage'
+import LowStockPage from './pages/admin/LowStockPage'
+import StaffPartsPage from './pages/staff/StaffPartsPage'
+import StaffCreditsPage from './pages/staff/StaffCreditsPage'
+import StaffRequestsPage from './pages/staff/StaffRequestsPage'
 
 
 function App() {
@@ -49,6 +60,7 @@ function App() {
       <Routes>
         {/* Login Route */}
         <Route path="/login" element={<LoginPage />} />
+        <Route path="/register" element={<CustomerRegister />} />
 
         {/* Admin Dashboard Route */}
        <Route
@@ -70,7 +82,11 @@ function App() {
   <Route path="parts" element={<PartsPage/>}/>
   <Route path="parts/new" element={<AddPartPage/>}/>
   <Route path="parts/edit/:id" element={<EditPartPage/>}/>
-  {/* <Route path="reports" element={<AdminReportsPage />} /> */}
+  <Route path="reports" element={<AdminReportsPage />} />
+  <Route path="purchases" element={<AdminPurchaseInvoicesPage />} />
+  <Route path="purchases/new" element={<NewPurchaseInvoicePage />} />
+  <Route path="purchases/:id" element={<PurchaseInvoiceDetailPage />} />
+  <Route path="low-stock" element={<LowStockPage />} />
   {/* <Route path="settings" element={<AdminSettingsPage />} /> */}
 </Route>
 <Route path='/staff' element={
@@ -87,6 +103,10 @@ function App() {
   <Route path="sales/new" element={<NewSaleInvoicePage/>}/>
   <Route path="sales/:id" element={<SalesDetailPage/>}/>
   <Route path="appointments" element={<StaffAppointments/>}/>
+  <Route path="reports" element={<StaffReportsPage/>}/>
+  <Route path="parts" element={<StaffPartsPage/>}/>
+  <Route path="credits" element={<StaffCreditsPage/>}/>
+  <Route path="requests" element={<StaffRequestsPage/>}/>
 </Route>
 
 {/* customer walaa */}
@@ -100,6 +120,7 @@ function App() {
   <Route path='vehicles' element={<CustomerVehiclesPage />} />
   <Route path='requests' element={<PartRequestsPage />} />
   <Route path='reviews' element={<ReviewsPage />} />
+  <Route path='history' element={<PurchaseHistoryPage />} />
   </Route>
 
         {/* Redirect root to login */}

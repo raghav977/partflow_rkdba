@@ -129,6 +129,7 @@ public class UserService
     public async Task<dynamic> GetCustomerDetails(Guid customerId)
     {
         var customer = await _db.Customers
+            .Include(c => c.User)
             .Include(c => c.Vehicles)
             .FirstOrDefaultAsync(c => c.Id == customerId);
 
@@ -223,6 +224,7 @@ public class UserService
         await _db.SaveChangesAsync();
         var customer = new Customer{
             UserId =user.Id,
+            Address = dto.Address,
             CreatedByUserId = createdByUserId,
             CreatedAt = DateTime.UtcNow,
             UpdatedAt = DateTime.UtcNow
@@ -238,5 +240,70 @@ public class UserService
             throw;
 
         }
-}
+    }
+
+    /// <summary>
+    /// Advanced customer search by vehicle number, phone, ID, or name
+    /// </summary>
+    public async Task<CustomersListResponseDto> SearchCustomersAdvanced(
+        int page,
+        int pageSize,
+        string? vehicleNumber = null,
+        string? phoneNumber = null,
+        string? customerId = null,
+        string? name = null)
+    {
+        var query = _db.Customers
+            .Include(c => c.User)
+            .Include(c => c.Vehicles)
+            .AsQueryable();
+
+        // Search by vehicle number
+        if (!string.IsNullOrWhiteSpace(vehicleNumber))
+        {
+            query = query.Where(c => c.Vehicles.Any(v => 
+                v.VehicleNumber.Contains(vehicleNumber)));
+        }
+
+        // Search by phone number
+        if (!string.IsNullOrWhiteSpace(phoneNumber))
+        {
+            query = query.Where(c => c.User!.PhoneNumber!.Contains(phoneNumber));
+        }
+
+        // Search by customer ID
+        if (!string.IsNullOrWhiteSpace(customerId) && Guid.TryParse(customerId, out var guid))
+        {
+            query = query.Where(c => c.Id == guid);
+        }
+
+        // Search by name
+        if (!string.IsNullOrWhiteSpace(name))
+        {
+            query = query.Where(c => c.User!.Name.Contains(name));
+        }
+
+        var totalCustomers = await query.CountAsync();
+
+        var customers = await query
+            .OrderByDescending(x => x.CreatedAt)
+            .Skip((page - 1) * pageSize)
+            .Take(pageSize)
+            .Select(x => new CustomerResponseDto
+            {
+                Id = x.Id,
+                Name = x.User!.Name,
+                Email = x.User!.Email,
+                PhoneNumber = x.User!.PhoneNumber
+            })
+            .ToListAsync();
+
+        return new CustomersListResponseDto
+        {
+            TotalCustomers = totalCustomers,
+            Page = page,
+            PageSize = pageSize,
+            Data = customers
+        };
+    }
 }

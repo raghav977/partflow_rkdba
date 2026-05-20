@@ -71,10 +71,10 @@ public class UserController : ControllerBase
     }
 
     /// <summary>
-    /// Get all users with pagination and filtering (Admin only)
+    /// Get all users with pagination and filtering (Admin and Staff)
     /// </summary>
     [HttpGet]
-    [Authorize(Roles = "Admin")]
+    [Authorize(Roles = "Admin,Staff")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
@@ -109,8 +109,9 @@ public class UserController : ControllerBase
             });
         }
     }
+
     /// <summary>
-    /// Get all customers with pagination and filtering (Admin only)
+    /// Get all customers with pagination and filtering (Admin,Staff)
     /// </summary>
     [HttpGet("customers")]
     [Authorize(Roles = "Admin,Staff")]
@@ -149,10 +150,99 @@ public class UserController : ControllerBase
     }
 
     /// <summary>
-    /// Get detailed customer information including vehicles and history (Staff only)
+    /// Advanced customer search by vehicle number, phone, ID, or name (Staff only)
+    /// </summary>
+    [HttpGet("customers/search")]
+    [Authorize(Roles = "Admin,Staff")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
+    public async Task<IActionResult> SearchCustomersAdvanced(
+        [FromQuery] int page = 1,
+        [FromQuery] int pageSize = 10,
+        [FromQuery] string? vehicleNumber = null,
+        [FromQuery] string? phoneNumber = null,
+        [FromQuery] string? customerId = null,
+        [FromQuery] string? name = null)
+    {
+        try
+        {
+            // Validate pagination parameters
+            if (page < 1) page = 1;
+            if (pageSize < 1) pageSize = 10;
+            if (pageSize > 100) pageSize = 100; // Max 100 per page
+
+            var result = await _userService.SearchCustomersAdvanced(
+                page, pageSize, vehicleNumber, phoneNumber, customerId, name);
+
+            return Ok(new
+            {
+                success = true,
+                data = result
+            });
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error searching customers");
+            return StatusCode(StatusCodes.Status500InternalServerError, new
+            {
+                success = false,
+                message = "An error occurred while searching customers."
+            });
+        }
+    }
+
+    /// <summary>
+    /// Get current user's profile (any authenticated user)
+    /// </summary>
+    [HttpGet("profile")]
+    [Authorize]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    public IActionResult GetProfile()
+    {
+        try
+        {
+            var userIdClaim = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+            var emailClaim = User.FindFirst(System.Security.Claims.ClaimTypes.Email)?.Value;
+            var roleClaim = User.FindFirst(System.Security.Claims.ClaimTypes.Role)?.Value;
+
+            if (string.IsNullOrWhiteSpace(userIdClaim))
+            {
+                return Unauthorized(new
+                {
+                    success = false,
+                    message = "Invalid token"
+                });
+            }
+
+            return Ok(new
+            {
+                success = true,
+                data = new
+                {
+                    id = userIdClaim,
+                    email = emailClaim,
+                    role = roleClaim
+                }
+            });
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error fetching profile");
+            return StatusCode(StatusCodes.Status500InternalServerError, new
+            {
+                success = false,
+                message = "An error occurred while fetching profile."
+            });
+        }
+    }
+
+    /// <summary>
+    /// Get detailed customer information including vehicles and history (Admin, Staff, Customer)
     /// </summary>
     [HttpGet("customers/{id}")]
-    [Authorize(Roles = "Admin,Staff")]
+    [Authorize(Roles = "Admin,Staff,Customer")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
