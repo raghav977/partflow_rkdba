@@ -1,0 +1,11 @@
+.vscode
+backend/bin
+backend/obj
+backend/Debug
+backend/.env
+backend/Release
+
+frontend/node_modules
+frontend/dist
+frontend/.env
+.env

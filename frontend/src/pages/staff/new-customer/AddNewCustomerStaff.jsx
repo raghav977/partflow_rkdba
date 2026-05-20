@@ -1,30 +1,22 @@
-import React, { useState } from 'react';
+import CustomerAddForm from '@/components/form/CustomerAddForm'
+import Header from '@/components/Header'
+import useAddCustomer from '@/hooks/UseAddCustomer'
+import React from 'react'
 
 const AddNewCustomerStaff = () => {
-  const [customer, setCustomer] = useState({
-    name: '',
-    email: '',
-    phone: '',
-    address: ''
-  });
 
-  const handleAdd = (e) => {
-    e.preventDefault();
-    // Add customer logic
-  };
+    const {mutate,isPending} = useAddCustomer();
 
+    const handleSubmit = (data)=>{
+        console.log("New Customer Data:",data);
+        mutate(data);
+    }
   return (
-    <div className="add-customer-container">
-      <h2>Add New Customer</h2>
-      <form onSubmit={handleAdd}>
-        <input placeholder="Name" />
-        <input placeholder="Email" />
-        <input placeholder="Phone" />
-        <input placeholder="Address" />
-        <button type="submit">Add Customer</button>
-      </form>
+    <div>
+        <Header title="Add New Customer" desc="Fill in the details to add a new customer" backLink="/staff/customers"/>
+        <CustomerAddForm onSubmit={handleSubmit} isPending={isPending} />
     </div>
-  );
-};
+  )
+}
 
-export default AddNewCustomerStaff;
+export default AddNewCustomerStaff
