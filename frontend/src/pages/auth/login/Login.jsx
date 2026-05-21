@@ -197,6 +197,20 @@ export default function LoginPage() {
         <div className="mt-6 text-center text-xs text-slate-500">
           Secure access for Admin, Staff, and Customers
         </div>
+
+        {/* Create Account */}
+        <div className="mt-6 border-t pt-6">
+          <p className="mb-3 text-center text-sm text-slate-600">
+            Don't have an account?
+          </p>
+          <button
+            type="button"
+            onClick={() => navigate('/register')}
+            className="w-full rounded-lg border-2 border-blue-600 py-2.5 font-medium text-blue-600 transition hover:bg-blue-50"
+          >
+            Create an Account
+          </button>
+        </div>
       </div>
     </div>
   )
